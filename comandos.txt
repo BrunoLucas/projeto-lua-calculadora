@@ -1,0 +1,39 @@
+dentro de libsrc
+gcc -Wall -fPIC -c *.c
+
+
+gcc -shared -fPIC -o libsoma.so soma.o
+gcc -shared -fPIC -o libsubtrai.so subtrai.o
+gcc -shared -fPIC -o libdivide.so divide.o
+gcc -shared -fPIC -o libmultiplical.so multiplica.o
+
+na pasta raiz
+gcc -Wall -L./lib calculadora.c -lcalculadora -o calculadora
+
+export LD_LIBRARY_PATH=./lib:$LD_LIBRARY_PATH
+
+./calculadora
+
+Agora para a versão dinâmica
+gcc -rdynamic -o calculadoradl *.c -ldl
+
+
+******************************************
+
+
+gcc -Wall -fPIC -c calculadora.c
+gcc -rdynamic -shared -fPIC -o libcalculadora.so calculadora.o -ldl
+mv calculadora.so libcalculadora.so
+
+gcc -Wall -fPIC -c wrapper.c -I../lua-dev/include -L. -L../lua-dev/lib64   -L../ -lcalculadora -llua
+
+gcc -shared -fPIC -o wrapper.so wrapper.o -I../lua-dev/include -L. -L../lua-dev/lib64   -L../-lcalculadora
+ gcc -shared -fPIC -o wrapper.so wrapper.o -I../lua-dev/include -L. -L../lua-dev/lib64 -lcalculadora -llua
+
+gcc -shared -fPIC -o wrapper.so wrapper.o -I../lua-dev/include -L. -L../lua-dev/lib64   -L../ -lcalculadora -llua
+
+ldd ./plugins/wrapper.so
+
+
+
+ 

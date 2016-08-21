@@ -1,0 +1,209 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <dlfcn.h>
+#include <dirent.h>
+#include <string.h>
+#include <ctype.h>
+#include "../lib/plugin.h"
+
+
+
+int abrirPlugins(char **, char*);
+int opcao,i,cont,j, valor1, valor2;
+char nomes[100];
+int k;
+DIR *dir = NULL;
+void *lib_handle[100];
+char nomeBiblioteca[100];
+char *error;
+char sair[2];
+char sair2;
+int (*f_todas)(int, int);
+int dif=0;
+int total=0;
+int tempo;
+ char *lista[100];
+char diretorio[] = "../plugins/";
+struct dirent *drnt = NULL;
+
+
+
+char ** getFuncoes(){
+	printf("chamou a getFuncoes\n");
+	//for(i=0;i<total;i++){
+	//	printf("\n Função : %s +",lista[i]);
+	//}	
+
+        abrirPlugins(lista,diretorio);
+	
+	for(i=0;i<total;i++){
+		printf("\n Função : %d %s +",i,lista[i]);
+   	}
+	return  lista;
+}
+
+
+void imprimir(char **p_Raiz){
+  int i =0;
+  int j;
+  char **l;
+  //printf("\nIMPRIMIR");
+
+ // for(i=0;i< total;i++){
+  //  printf("\n Opcao %d == %s ",i, p_Raiz[i]);
+ // }
+  puts("");
+  //printf("Agora chamar a função getFuncoes() \n");
+  
+  // l = getFuncoes();
+ // printf("\n Já chamou");
+  // for(i=0;i<total;i++){
+//	printf("\n Função : %s",l[i]);
+  // }
+ //  printf("Conseguiu chamar\n");
+  }
+
+int executar(int v1,int v2,int op){
+	
+	f_todas = dlsym(lib_handle[op],"execute");
+
+        if ((error = dlerror()) != NULL)
+        {
+            fprintf(stderr, "%s\n", error);
+            exit(1);
+        }
+
+        int resposta = (*f_todas)(v1,v2);
+        printf("Resultado= %d\n",resposta);
+	return resposta;
+       
+}
+
+int main(){
+
+
+
+
+ char **l;
+ printf("\nchamar getFuncoes()");
+ l = getFuncoes();
+  
+ printf("\n*************************");
+
+   
+
+  // abrirPlugins(lista, diretorio);   
+  do{
+    
+      opcao = 0;
+  i=0;
+    
+  imprimir(lista);    
+  printf("Informe a opcao: \n");
+      scanf("%d",&opcao); // lê a operacao desejada
+    
+  while(opcao < 0 || opcao > total-1){
+     
+      printf("\nInforme a opcao valida");
+      scanf("%d",&opcao); // lê a operacao desejada
+  }
+     
+
+          printf("Informe o valor  1  :");
+          scanf("%d",&valor1);
+         
+          printf("Informe o valor  2  :");
+          scanf("%d",&valor2);
+      
+ 
+      printf("Aguarde... Calculando\n\n");
+              //Chamar o Plugin da operação selecionada
+
+
+        f_todas = dlsym(lib_handle[opcao],"execute");
+
+        if ((error = dlerror()) != NULL)
+        {
+            fprintf(stderr, "%s\n", error);
+            exit(1);
+        }
+
+        int resposta = (*f_todas)(valor1,valor2);
+        printf("Resultado= %d\n",resposta);
+       
+  printf("\nAperte 'S' para sair\nQualquer tecla para continuar\n'R' para recarregar plugins\n");
+  
+  scanf("%s",sair);
+
+  if(strcmp(sair,"R")==0){
+
+      printf("\nRecarregando ...");
+      system("clear");
+      total = 0;
+      abrirPlugins(lista,diretorio);
+  }
+  }while(strcmp(sair,"S") != 0);
+printf("\n Bye bye ^^\n");
+}
+
+int abrirPlugins(char **lista, char *diretorio){
+      cont = 0;
+      printf("Ola!\n");
+      printf("Selecione uma operacao para comecar, 'S' para sair:\n\n");
+     
+      dir=opendir(diretorio);
+      if(dir)
+      {
+      i=0;
+  printf("\nDiretório %s aberto\n",diretorio);
+              while(drnt = readdir(dir))
+     
+              {
+    
+        if( strstr(drnt->d_name,"lib") == NULL) {
+          i++;
+          dif++;
+          //printf("\nno lib %s\n",drnt->d_name);
+            continue;
+      }
+        //puts("oi");  
+                  strcpy(nomeBiblioteca,"./");
+                  strcat(nomeBiblioteca,drnt->d_name)       ;
+                  printf("\n nomeBiblioteca %s",nomeBiblioteca);
+             
+                  lib_handle[cont] = dlopen(nomeBiblioteca, RTLD_LAZY);
+          total++;
+      lista[cont] = strndup(drnt->d_name+3,((strlen(drnt->d_name))- 6));
+      
+      //printf("\n lista[%d] == %s ",cont,lista[cont]);
+        
+                  if (!lib_handle[cont])
+                  {
+                  fprintf(stderr, "%s\n", dlerror());
+                  }
+                cont++;
+               
+                i++;
+      memset(nomeBiblioteca,0,99);
+              }
+              closedir(dir);
+     // printf("\n cont == %d",cont);
+      }
+      else
+      {
+              printf("Erro ao abrir diretorio '%s'\n", diretorio);
+      system("pause");
+      exit(0);
+      }
+
+ 
+}
+
+    
+
+
+
+
+
+ 

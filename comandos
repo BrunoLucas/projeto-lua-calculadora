@@ -1,0 +1,45 @@
+ 
+comando ldd para ver quais as dependências do programa
+
+gcc -Wall -fPIC -c minhabiblioteca.c
+
+gcc -shared -fPIC -o libsubtrai.so subtrai.o
+gcc -shared -fPIC -o libdivide.so divide.o
+gcc -shared -fPIC -o libsoma.so soma.o
+gcc -shared -fPIC -o libmultiplica.so multiplica.o
+
+gcc -Wall -fPIC -c calculadora.c
+gcc -shared -fPIC -o calculadora.so calculadora.o
+
+gcc -shared -fPIC -o meuwrapper.so meuwrapper.c -Wall -I. -I../lua-dev/include -L. -L../lua-dev/lib64 -lminhabiblioteca
+
+export LD_LIBRARY_PATH=.:./lua-dev/lib64
+
+executar o programa
+ 
+
+
+gcc -Wall -fPIC -c luasoma.c -I. -I../lua-dev/include -L. -L../lua-dev/lib64
+
+gcc -shared -fPIC -o libluasoma.so luasoma.o -L../lua-dev/lib64
+
+gcc -shared -fPIC -o   -Wall -I. -I../lua-dev/include -L. -L../lua-dev/lib64 -libluasoma
+
+
+
+
+
+gcc -shared -fPIC -o   -Wall -I. -I../lua-dev/include -L. -L../lua-dev/lib64 -c luasoma.c
+
+gcc -rdynamic -o calculadoradl calculadora.c -ldl
+**********
+Aqui começa a era do peixe
+
+gcc -Wall -fPIC -c luasoma.c  -I../lua-dev/include -llua
+
+gcc -shared -fPIC -o libluasoma.so luasoma.o -L../lua-dev/lib64 -llua
+
+export LD_LIBRARY_PATH=../lua-dev/lib64
+
+./calculadoradl 
+
